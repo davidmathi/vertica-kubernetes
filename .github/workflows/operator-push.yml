@@ -39,6 +39,6 @@ jobs:
 
       - name: Push Docker Image
         run: |
-          docker tag verticadb-operator:${OPERATOR_VERSION} "${{secrets.DOCKERHUB_OPERATOR_REPO}}":"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}"
-          docker tag verticadb-operator:${OPERATOR_VERSION} "${{secrets.DOCKERHUB_OPERATOR_REPO}}":latest
+          docker tag verticadb-operator:"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}" "${{secrets.DOCKERHUB_OPERATOR_REPO}}":"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}"
+          docker tag verticadb-operator:"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}" "${{secrets.DOCKERHUB_OPERATOR_REPO}}":latest
           docker images
