@@ -25,6 +25,5 @@ jobs:
         uses: actions/checkout@v2
 
       # setup Docker buld action
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v1
+      - name: Call makefile
+        run: make docker-build-operator
