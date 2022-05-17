@@ -13,5 +13,10 @@
 
 apiVersion: kuttl.dev/v1beta1
 kind: TestStep
+delete:
+  - apiVersion: vertica.com/v1beta1
+    kind: VerticaDB
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
 commands:
-  - script: kustomize build ../../manifests/communal-creds/overlay | kubectl apply -f - --namespace $NAMESPACE
+  - command: bash -c "kustomize build clean-communal/overlay | kubectl -n $NAMESPACE apply -f - "

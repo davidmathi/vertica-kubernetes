@@ -11,7 +11,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: kuttl.dev/v1beta1
-kind: TestStep
-commands:
-  - script: kustomize build ../../manifests/communal-creds/overlay | kubectl apply -f - --namespace $NAMESPACE
+apiVersion: vertica.com/v1beta1
+kind: VerticaDB
+metadata:
+  name: vdb-label-ant
+status:
+  upNodeCount: 3
