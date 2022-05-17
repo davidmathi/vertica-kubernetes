@@ -3,9 +3,6 @@
 name: Operator Build
 
 on:
-  push:
-    branches: [main, vnext]
-  pull_request:
   workflow_dispatch:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -33,3 +30,15 @@ jobs:
       # setup Docker buld action
       - name: Call makefile
         run: make docker-build-operator TAG="${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}"
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASS }}
+
+      - name: Push Docker Image
+        - run: |
+           docker tag verticadb-operator:${OPERATOR_VERSION} "${{secrets.DOCKERHUB_OPERATOR_REPO}}":"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}"
+           docker tag verticadb-operator:${OPERATOR_VERSION} "${{secrets.DOCKERHUB_OPERATOR_REPO}}":latest
+           docker images
