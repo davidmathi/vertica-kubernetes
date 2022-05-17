@@ -28,8 +28,8 @@ jobs:
         run: echo "OPERATOR_VERSION=$(cat helm-charts/verticadb-operator/Chart.yaml | awk  '/^version/ {print $2}')" >> $GITHUB_ENV
 
       - name: Check Operator Version
-        run: echo "Hello ${OPERATOR_VERSION}"
+        run: echo "Operator Version - ${OPERATOR_VERSION}"
 
       # setup Docker buld action
       - name: Call makefile
-        run: make docker-build-operator TAG="${OPERATOR_VERSION}"
+        run: make docker-build-operator TAG="${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}"
