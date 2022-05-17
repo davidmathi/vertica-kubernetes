@@ -18,12 +18,18 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Runs a single command using the runners shell
-      - name: Send greeting
+      - name: Check secret
         run: echo "Hello ${{ secrets.TEST_VALUE }}"
 
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Set env
+        run: echo "OPERATOR_VERSION=$(cat helm-charts/verticadb-operator/Chart.yaml | awk  '/^version/ {print $2}')" >> $GITHUB_ENV
+
+      - name: Check Operator Version
+        run: echo "Hello ${{ OPERATOR_VERSION }}"
+
       # setup Docker buld action
       - name: Call makefile
-        run: make docker-build-operator
+        run: make docker-build-operator TAG="${{ OPERATOR_TAG }}"
