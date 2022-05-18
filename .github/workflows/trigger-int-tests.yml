@@ -22,27 +22,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set env
-        run: echo "OPERATOR_VERSION=$(cat helm-charts/verticadb-operator/Chart.yaml | awk  '/^version/ {print $2}')" >> $GITHUB_ENV
+      - name: Check parameters
+        run: echo "Hello ${{ github.event.client_payload.TAG }}"
 
-      - name: Check Operator Version
-        run: echo "Operator Version - ${OPERATOR_VERSION}"
-
-      # setup Docker buld action
-      - name: Call makefile
-        run: make docker-build-operator TAG="${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}"
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_PASS }}
-
-      - name: Push Docker Image
-        run: |
-          docker tag verticadb-operator:"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}" "${{secrets.DOCKERHUB_OPERATOR_REPO}}":"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}"
-          docker tag verticadb-operator:"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}" "${{secrets.DOCKERHUB_OPERATOR_REPO}}":latest
-          docker images
-          docker push "${{secrets.DOCKERHUB_OPERATOR_REPO}}":"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}"
-          docker push "${{secrets.DOCKERHUB_OPERATOR_REPO}}":latest
+      
           
