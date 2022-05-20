@@ -63,7 +63,7 @@ jobs:
         run: echo "OPERATOR_IMG=${operator_private}:${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
 
       - name: Run tests
-        run: make run-int-tests | tee int-tests-output/kuttl.out
+        run: make run-int-tests | tee kuttl.out
 
 
       
