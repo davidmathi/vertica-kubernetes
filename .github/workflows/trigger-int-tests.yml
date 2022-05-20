@@ -25,5 +25,32 @@ jobs:
       - name: Check parameters
         run: echo "Hello ${{ github.event.client_payload.TAG }}"
 
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASS }}
+
+      - name: Pull vertica-k8s image
+        run: docker pull verticadocker/vertica-k8s-private:${{ github.event.client_payload.TAG }}
+
+      - name: Modify Kustomize.cfg
+        run: |
+          sed -i 's-^PRIVATE_REG_SERVER=-&https://index.docker.io/v1/-' tests/kustomize-defaults.cfg
+          sed -i 's-^PRIVATE_REG_USERNAME=-${{ secrets.DOCKERHUB_USER }}-' tests/kustomize-defaults.cfg
+          sed -i 's-^PRIVATE_REG_PASSWORD=-${{ secrets.DOCKERHUB_PASS }}-' tests/kustomize-defaults.cfg
+
+      
+
+
+
+      
+
+
+      
+
+
+      
+
       
           

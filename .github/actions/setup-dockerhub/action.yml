@@ -1,0 +1,22 @@
+name: 'Setup e2e environment'
+description: 'Will setup the environment to run e2e tests'
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Go and kubectx
+      uses: ./.github/actions/setup-go-kctx
+
+    - name: Install kubectl
+      shell: bash
+      run: |
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+        kubectl version --client
+    
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USER }}
+        password: ${{ secrets.DOCKERHUB_PASS }}
+
+    

@@ -5,6 +5,9 @@ name: Operator Build
 on:
   workflow_dispatch:
 
+env:
+  operator-private: verticadocker/verticadb-operator-private
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "greet"
@@ -39,9 +42,9 @@ jobs:
 
       - name: Push Docker Image
         run: |
-          docker tag verticadb-operator:"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}" "${{secrets.DOCKERHUB_OPERATOR_REPO}}":"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}"
-          docker tag verticadb-operator:"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}" "${{secrets.DOCKERHUB_OPERATOR_REPO}}":latest
+          docker tag verticadb-operator:"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}" "${operator-private}":"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}"
+          docker tag verticadb-operator:"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}" "${operator-private}":latest
           docker images
-          docker push "${{secrets.DOCKERHUB_OPERATOR_REPO}}":"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}"
-          docker push "${{secrets.DOCKERHUB_OPERATOR_REPO}}":latest
-          
+          docker push "${operator-private}":"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}"
+          docker push "${operator-private}":latest
+
