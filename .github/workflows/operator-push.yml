@@ -48,7 +48,7 @@ jobs:
         run: |
           export MINIMAL_VERTICA_IMG=YES
           make docker-build-operator TAG="${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}"
-          make docker-build-logger VLOGGER_VERSION="${LOGGER_VERSION}-${GITHUB_RUN_NUMBER}"
+          make docker-build-vlogger VLOGGER_VERSION="${LOGGER_VERSION}-${GITHUB_RUN_NUMBER}"
           make docker-build-vertica TAG="kind"
 
       - name: Login to DockerHub
