@@ -36,9 +36,9 @@ jobs:
 
       - name: Modify Kustomize.cfg
         run: |
-          sed -i 's-^PRIVATE_REG_SERVER=-\&https://index.docker.io/v1/-' tests/kustomize-defaults.cfg
-          sed -i 's-^PRIVATE_REG_USERNAME=-\&${{ secrets.DOCKERHUB_USER }}-' tests/kustomize-defaults.cfg
-          sed -i 's-^PRIVATE_REG_PASSWORD=-\&${{ secrets.DOCKERHUB_PASS }}-' tests/kustomize-defaults.cfg
+          sed -i "s-^PRIVATE_REG_SERVER=-&https://index.docker.io/v1/-" tests/kustomize-defaults.cfg
+          sed -i "s-^PRIVATE_REG_USERNAME=-&${{ secrets.DOCKERHUB_USER }}-" tests/kustomize-defaults.cfg
+          sed -i "s-^PRIVATE_REG_PASSWORD=-&${{ secrets.DOCKERHUB_PASS }}-" tests/kustomize-defaults.cfg
 
       
 
