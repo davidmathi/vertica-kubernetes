@@ -30,7 +30,7 @@ jobs:
         run: echo "OPERATOR_VERSION=$(cat helm-charts/verticadb-operator/Chart.yaml | awk  '/^version/ {print $2}')" >> $GITHUB_ENV
  
       - name: Set LOGGER_VERSION
-        run: echo "LOGGER_VERSION=$(cat Makefile | awk  /^VLOGGER_VERSION/ {print $3})" >> $GITHUB_ENV
+        run: echo "LOGGER_VERSION=$(cat Makefile | awk  /^VLOGGER_VERSION/ {print \$3})" >> $GITHUB_ENV
 
       - name: Set up e2e environment
         uses: ./.github/actions/setup-e2e
