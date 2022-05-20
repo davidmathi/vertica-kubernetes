@@ -2,13 +2,14 @@
 
 name: Operator Build
 
-on:
+on: 
   workflow_dispatch:
+  push:
 
 env:
   operator_private: verticadocker/verticadb-operator-private
-  VERTICA_IMG: verticadocker/verticadb-k8s-private:latest
-  VLOGGER_IMG: verticadocker/vertica-logger-private:latest
+  vertica_k8s_private: verticadocker/vertica-k8s-private
+  logger_private: verticadocker/vertica-logger-private
   E2E_PARALLELISM: 4
   E2E_TEST_DIRS: tests/e2e
 
@@ -22,18 +23,17 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Runs a single command using the runners shell
-      - name: Check secret
-        run: echo "Hello ${{ secrets.TEST_VALUE }}"
-
       - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Set OPERATOR_VERSION
         run: echo "OPERATOR_VERSION=$(cat helm-charts/verticadb-operator/Chart.yaml | awk  '/^version/ {print $2}')" >> $GITHUB_ENV
+ 
+      - name: Set LOGGER_VERSION
+        run: echo "LOGGER_VERSION=$(cat ${WORKSPACE}/vertica-kubernetes/Makefile | awk  /^VLOGGER_VERSION/ {print $3})" >> $GITHUB_ENV
 
-      - name: Check Operator Version
-        run: echo "Operator Version - ${OPERATOR_VERSION}"
+      - name: Set up e2e environment
+        uses: ./.github/actions/setup-e2e
 
       - name: Modify Kustomize.cfg
         shell: bash
@@ -41,10 +41,15 @@ jobs:
           sed -i -e "s,^PRIVATE_REG_SERVER=,&https://index.docker.io/v1/," tests/kustomize-defaults.cfg
           sed -i -e "s,^PRIVATE_REG_USERNAME=,&${{ secrets.DOCKERHUB_USER }}," tests/kustomize-defaults.cfg
           sed -i -e "s,^PRIVATE_REG_PASSWORD=,&${{ secrets.DOCKERHUB_PASS }}," tests/kustomize-defaults.cfg
+          cat tests/kustomize-defaults.cfg
 
       # setup Docker buld action
-      - name: Call makefile
-        run: make docker-build-operator TAG="${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}"
+      - name: Call docker-build-operator makefile
+        run: |
+          export MINIMAL_VERTICA_IMG=YES
+          make docker-build-operator TAG="${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}"
+          make docker-build-logger VLOGGER_VERSION="${LOGGER_VERSION}-${GITHUB_RUN_NUMBER}"
+          make docker-build-vertica TAG="kind"
 
       - name: Login to DockerHub
         uses: docker/login-action@v1
@@ -57,13 +62,27 @@ jobs:
           docker tag verticadb-operator:"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}" "${operator_private}":"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}"
           docker images
           docker push "${operator_private}":"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}"
+          docker push "${logger_private}":"${LOGGER_VERSION}-${GITHUB_RUN_NUMBER}"
 
 
-      - name: Set OPERATOR_IMG
-        run: echo "OPERATOR_IMG=${operator_private}:${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
+      - name: Set VARS
+        run: |
+          echo "VERTICA_IMG=${vertica_k8s_private}:kind" >> $GITHUB_ENV
+          echo "OPERATOR_IMG=${operator_private}:${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
+          echo "VLOGGER_IMG=${operator_private}:${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
 
-      - name: Run tests
-        run: make run-int-tests | tee kuttl.out
+      - name: Run e2e tests
+        run: |
+          [ ! -z "$E2E_PARALLELISM" ] && export E2E_PARALLELISM
+          export KUSTOMIZE_CFG=tests/kustomize-defaults-azb-ci.cfg
+          scripts/run-k8s-int-tests.sh -e tests/external-images-azb-ci.txt
+
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: logs-operator-push
+          path: /home/runner/work/vertica-kubernetes/vertica-kubernetes/int-tests-output/*
+
 
 
       

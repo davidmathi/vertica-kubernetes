@@ -18,7 +18,6 @@ set -o pipefail
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 REPO_DIR=$(dirname $SCRIPT_DIR)
-TAG=kind
 BUILD_IMAGES=1
 INT_TEST_OUTPUT_DIR=${REPO_DIR}/int-tests-output
 CLUSTER_NAME=vertica
@@ -71,15 +70,34 @@ while getopts l:n:t:hse: opt; do
 done
 shift "$((OPTIND-1))"
 
+
+if [ -z ${VERTICA_IMG} ]; then
+    echo "VERTICA_IMG variable is not set. Exiting"; 
+    exit 1
+else 
+    echo "VERTICA_IMG is set to ${VERTICA_IMG}"; 
+fi
+
+if [ -z ${OPERATOR_IMG} ]; then
+    echo "OPERATOR_IMG variable is not set. Exiting"; 
+    exit 1
+else 
+    echo "OPERATOR_IMG is set to ${OPERATOR_IMG}"; 
+fi
+
+if [ -z ${VLOGGER_IMG} ]; then
+    echo "VLOGGER_IMG variable is not set. Exiting"; 
+    exit 1
+else 
+    echo "VLOGGER_IMG is set to ${VLOGGER_IMG}"; 
+fi
+
 #Sanity Checks
 
 PACKAGES_DIR=docker-vertica/packages #RPM file should be in this directory to create docker image.
 RPM_FILE=vertica-x86_64.RHEL6.latest.rpm
 RPM_PATH="${PACKAGES_DIR}/${RPM_FILE}"
 export INT_TEST_OUTPUT_DIR
-export VERTICA_IMG=vertica-k8s:$TAG
-export OPERATOR_IMG=verticadb-operator:$TAG
-export VLOGGER_IMG=vertica-logger:$TAG
 export PATH=$PATH:$HOME/.krew/bin
 export DEPLOY_WITH=random  # Randomly pick between helm and OLM
 
