@@ -52,16 +52,18 @@ jobs:
           docker push "${operator_private}":"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}"
 
       - name: Modify Kustomize.cfg
+        shell: bash
         run: |
-          sed -i 's-^PRIVATE_REG_SERVER=-&https://index.docker.io/v1/-' tests/kustomize-defaults.cfg
-          sed -i 's-^PRIVATE_REG_USERNAME=-${{ secrets.DOCKERHUB_USER }}-' tests/kustomize-defaults.cfg
-          sed -i 's-^PRIVATE_REG_PASSWORD=-${{ secrets.DOCKERHUB_PASS }}-' tests/kustomize-defaults.cfg
+          sed -i 's-^PRIVATE_REG_SERVER=-\&https://index.docker.io/v1/-' tests/kustomize-defaults.cfg
+          sed -i 's-^PRIVATE_REG_USERNAME=-\&${{ secrets.DOCKERHUB_USER }}-' tests/kustomize-defaults.cfg
+          sed -i 's-^PRIVATE_REG_PASSWORD=-\&${{ secrets.DOCKERHUB_PASS }}-' tests/kustomize-defaults.cfg
 
       - name: Set OPERATOR_IMG
         run: echo "OPERATOR_IMG=${operator_private}:${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
 
       - name: Run tests
         run: make run-int-tests | tee int-tests-output/kuttl.out
+
 
       
 
