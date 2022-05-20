@@ -69,7 +69,7 @@ jobs:
         run: |
           echo "VERTICA_IMG=${vertica_k8s_private}:kind" >> $GITHUB_ENV
           echo "OPERATOR_IMG=${operator_private}:${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
-          echo "VLOGGER_IMG=${operator_private}:${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
+          echo "VLOGGER_IMG=${logger_private}:${LOGGER_VERSION}-${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
 
       - name: Run e2e tests
         run: |
