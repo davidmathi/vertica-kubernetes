@@ -60,6 +60,7 @@ jobs:
       - name: Push Docker Image
         run: |
           docker tag verticadb-operator:"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}" "${operator_private}":"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}"
+          docker tag vertica-logger:"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}" "${logger_private}":"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}"
           docker images
           docker push "${operator_private}":"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}"
           docker push "${logger_private}":"${LOGGER_VERSION}-${GITHUB_RUN_NUMBER}"
