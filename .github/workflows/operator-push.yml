@@ -7,6 +7,11 @@ on:
 
 env:
   operator_private: verticadocker/verticadb-operator-private
+  VERTICA_IMG: verticadocker/verticadb-k8s-private:latest
+  VLOGGER_IMG: verticadocker/vertica-logger-private:latest
+  E2E_PARALLELISM: 4
+  E2E_TEST_DIRS: tests/e2e
+
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -24,7 +29,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set env
+      - name: Set OPERATOR_VERSION
         run: echo "OPERATOR_VERSION=$(cat helm-charts/verticadb-operator/Chart.yaml | awk  '/^version/ {print $2}')" >> $GITHUB_ENV
 
       - name: Check Operator Version
@@ -43,8 +48,25 @@ jobs:
       - name: Push Docker Image
         run: |
           docker tag verticadb-operator:"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}" "${operator_private}":"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}"
-          docker tag verticadb-operator:"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}" "${operator_private}":latest
           docker images
           docker push "${operator_private}":"${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}"
-          docker push "${operator_private}":latest
+
+      - name: Modify Kustomize.cfg
+        run: |
+          sed -i 's-^PRIVATE_REG_SERVER=-&https://index.docker.io/v1/-' tests/kustomize-defaults.cfg
+          sed -i 's-^PRIVATE_REG_USERNAME=-${{ secrets.DOCKERHUB_USER }}-' tests/kustomize-defaults.cfg
+          sed -i 's-^PRIVATE_REG_PASSWORD=-${{ secrets.DOCKERHUB_PASS }}-' tests/kustomize-defaults.cfg
+
+      - name: Set OPERATOR_IMG
+        run: echo "OPERATOR_IMG=${operator_private}:${OPERATOR_VERSION}-${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
+
+      - name: Run tests
+        run: make run-int-tests | tee int-tests-output/kuttl.out
+
+      
+
+      
+
+      
+
 
